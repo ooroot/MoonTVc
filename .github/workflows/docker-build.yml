@@ -1,4 +1,4 @@
-name: Build moontvc image
+name: Build MoonTVc image
 
 on:
   workflow_run:
@@ -11,7 +11,7 @@ jobs:
   build:
     name: Build moonTV image
     runs-on: ubuntu-latest
-    if: (github.event.workflow_run.conclusion == 'success' && github.repository == 'ooroot/moontvc') || (github.repository == 'ooroot/moontvc')
+    if: (github.event.workflow_run.conclusion == 'success' && github.repository == 'ooroot/MoonTVc') || (github.repository == 'ooroot/MoonTVc')
 
     steps:
       - name: Check out repository
@@ -23,7 +23,18 @@ jobs:
           VERSION=$(cat VERSION.txt)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           
-
+- name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # set latest tag for master branch
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Set up Docker QEMU
         uses: docker/setup-qemu-action@v3
@@ -37,7 +48,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push moontvc image
+      - name: Build and push MoonTVc image
         uses: docker/build-push-action@v6.14.0
         with:
           context: .
