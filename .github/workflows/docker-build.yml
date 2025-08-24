@@ -28,7 +28,7 @@ jobs:
         run: |
           if [ "${{ github.repository }}" = "ooroot/MoonTVc" ]; then
             echo "IMAGE_NAME=moontvc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/libretv:${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
           else
             echo "IMAGE_NAME=moontvc-beta" >> $GITHUB_OUTPUT
             echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc-beta:latest" >> $GITHUB_OUTPUT
@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push LibreTV image
+      - name: Build and push moontvc image
         uses: docker/build-push-action@v6.14.0
         with:
           context: .
