@@ -32,7 +32,7 @@ jobs:
             echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${VERSION}">> $GITHUB_OUTPUT
           else
             echo "IMAGE_NAME=moontvcbeta" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvcbeta:latest">> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvcbeta:latest,${{ secrets.DOCKER_USERNAME }}/moontvcbeta:${VERSION}">> $GITHUB_OUTPUT
           fi
 
       - name: Set up Docker QEMU
