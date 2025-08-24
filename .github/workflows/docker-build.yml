@@ -29,10 +29,10 @@ jobs:
           REPO_NAME="${{ github.repository }}"
           if [ "$REPO_NAME" = "ooroot/moontvc" ]; then
             echo "IMAGE_NAME=moontvc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}moontvc:latest,${{ secrets.DOCKER_USERNAME }}moontvc:${VERSION}" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${VERSION}">> $GITHUB_OUTPUT
           else
             echo "IMAGE_NAME=moontvc-beta" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}moontvc-beta:latest" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc-beta:latest">> $GITHUB_OUTPUT
           fi
 
       - name: Set up Docker QEMU
