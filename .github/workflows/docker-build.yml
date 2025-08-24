@@ -23,19 +23,11 @@ jobs:
           VERSION=$(cat VERSION.txt)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           
-- name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v4.0.1
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # set latest tag for master branch
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=raw,value=latest,enable={{is_default_branch}}
-
+      - name: Set Docker image tag based on repository
+         tags: |
+         ${{ secrets.DOCKER_USERNAME }}/kook-ticket-bot:latest
+         ${{ secrets.DOCKER_USERNAME }}/kook-ticket-bot:${{ env.app_version }}
+          
       - name: Set up Docker QEMU
         uses: docker/setup-qemu-action@v3
 
