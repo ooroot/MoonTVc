@@ -23,17 +23,7 @@ jobs:
           VERSION=$(cat VERSION.txt)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           
-      - name: Set Docker image tag based on repository
-        id: set-tag
-        run: |
-          REPO_NAME="${{ github.repository }}"
-          if [ "$REPO_NAME" = "ooroot/moontvc" ]; then
-            echo "IMAGE_NAME=moontvc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${VERSION}">> $GITHUB_OUTPUT
-          else
-            echo "IMAGE_NAME=moontvc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${VERSION}">> $GITHUB_OUTPUT
-          fi
+
 
       - name: Set up Docker QEMU
         uses: docker/setup-qemu-action@v3
