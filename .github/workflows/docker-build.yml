@@ -1,4 +1,4 @@
-name: Build moonTVc image
+name: Build MoonTVc image
 
 on:
   workflow_run:
@@ -27,11 +27,11 @@ jobs:
         id: set-tag
         run: |
           if [ "${{ github.repository }}" = "ooroot/MoonTVc" ]; then
-            echo "IMAGE_NAME=moontvc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}moontvc:latest,${{ secrets.DOCKER_USERNAME }}/moontvc:${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+            echo "IMAGE_NAME=MoonTVc" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/MoonTVc:latest,${{ secrets.DOCKER_USERNAME }}/MoonTVc:${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
           else
-            echo "IMAGE_NAME=moontvc-beta" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/moontvc-beta:latest" >> $GITHUB_OUTPUT
+            echo "IMAGE_NAME=MoonTVc-beta" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/MoonTVc-beta:latest" >> $GITHUB_OUTPUT
           fi
 
       - name: Set up Docker QEMU
@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push moontvc image
+      - name: Build and push MoonTVc image
         uses: docker/build-push-action@v6.14.0
         with:
           context: .
