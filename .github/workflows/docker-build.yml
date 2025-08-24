@@ -26,9 +26,10 @@ jobs:
       - name: Set Docker image tag based on repository
         id: set-tag
         run: |
-          if [ "${{ github.repository }}" = "ooroot/MoonTVc" ]; then
+          REPO_NAME="${{ github.repository }}"
+          if [ "$REPO_NAME" = "ooroot/MoonTVc" ]; then
             echo "IMAGE_NAME=MoonTVc" >> $GITHUB_OUTPUT
-            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/MoonTVc:latest,${{ secrets.DOCKER_USERNAME }}/MoonTVc:${{ steps.version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+            echo "TAGS=${{ secrets.DOCKER_USERNAME }}/MoonTVc:latest,${{ secrets.DOCKER_USERNAME }}/MoonTVc:${VERSION}" >> $GITHUB_OUTPUT
           else
             echo "IMAGE_NAME=MoonTVc-beta" >> $GITHUB_OUTPUT
             echo "TAGS=${{ secrets.DOCKER_USERNAME }}/MoonTVc-beta:latest" >> $GITHUB_OUTPUT
