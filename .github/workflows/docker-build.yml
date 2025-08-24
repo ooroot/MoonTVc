@@ -1,4 +1,4 @@
-name: Build LibreTV image
+name: Build moonTVc image
 
 on:
   workflow_run:
