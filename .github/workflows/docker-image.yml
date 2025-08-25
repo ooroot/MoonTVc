@@ -7,12 +7,12 @@ name: Build and Push Docker image
 on:
   push:
     branches:
-      -  master
+      -  mian
     paths-ignore:
       - '**.md'
   pull_request:
     branches:
-      -  master
+      -  mian
     paths-ignore:
       - '**.md'
   workflow_dispatch:
