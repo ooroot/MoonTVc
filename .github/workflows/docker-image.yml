@@ -128,7 +128,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=sha
-            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'mian' }}
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
