@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Prepare platform name
         run: |
-          echo "PLATFORM_NAME=${{ matrix.platform }}" | sed 's|-|-|g' >> $GITHUB_ENV
+          echo "PLATFORM_NAME=${{ matrix.platform }}" | sed 's|/|-|g' >> $GITHUB_ENV
 
       - name: Checkout source code
         uses: actions/checkout@v4
