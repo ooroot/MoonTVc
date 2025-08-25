@@ -846,7 +846,7 @@ function PlayPageClient() {
     
       startTimeout();
     
-      await fetchSourcesData(searchTitle || videoTitle, (newResults) => {
+      await fetchSourcesData(videoTitle, (newResults) => {
         if (!started && newResults.length > 0) {
           started = true;
           if (timeoutId) clearTimeout(timeoutId); // 有结果就清理超时

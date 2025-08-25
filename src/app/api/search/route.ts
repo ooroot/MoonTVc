@@ -53,18 +53,18 @@ export async function GET(request: Request) {
     }
   };
 
+  // -------------------------
+  // 非流式：并发
+  // -------------------------
   if (!enableStream) {
-    // 非流式：聚合完成后根据是否为空设置缓存策略
-    const aggregatedResults: any[] = [];
-    const failedSources: { name: string; key: string; error: string }[] = [];
-    
-    for (const site of apiSites) {
+    const tasks = apiSites.map(async (site) => {
+      const siteResults: any[] = [];
+      let hasResults = false;
       try {
         const generator = searchFromApiStream(site, query);
-        let hasResults = false;
         for await (const pageResults of generator) {
           let filteredResults = pageResults;
-          if(filteredResults.length != 0){
+          if (filteredResults.length !== 0) {
             hasResults = true;
           }
           if (!config.SiteConfig.DisableYellowFilter) {
@@ -73,27 +73,29 @@ export async function GET(request: Request) {
               return !yellowWords.some((word) => typeName.includes(word));
             });
           }
-          if(hasResults === true && filteredResults.length === 0){
-            failedSources.push({ name: site.name, key: site.key, error: '结果被过滤' });
-            break;
+          if (hasResults && filteredResults.length === 0) {
+            throw new Error('结果被过滤');
           }
-          aggregatedResults.push(...filteredResults);
+          siteResults.push(...filteredResults);
         }
-        // 如果没有结果，也记录为失败
         if (!hasResults) {
-          failedSources.push({ name: site.name, key: site.key, error: '无搜索结果' });
+          throw new Error('无搜索结果');
         }
+        return { siteResults, failed: null };
       } catch (err: any) {
-        console.warn(`搜索失败 ${site.name}:`, err.message);
-        failedSources.push({ name: site.name, key: site.key, error: err.message || '未知的错误' });
+        return {
+          siteResults: [],
+          failed: { name: site.name, key: site.key, error: err.message || '未知的错误' },
+        };
       }
-    }
+    });
+
+    const results = await Promise.all(tasks);
+    const aggregatedResults = results.flatMap((r) => r.siteResults);
+    const failedSources = results.filter((r) => r.failed).map((r) => r.failed);
 
     if (aggregatedResults.length === 0) {
-      return new Response(JSON.stringify({ 
-        aggregatedResults,
-        failedSources 
-      }), {
+      return new Response(JSON.stringify({ aggregatedResults, failedSources }), {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -103,10 +105,7 @@ export async function GET(request: Request) {
       });
     } else {
       const cacheTime = await getCacheTime();
-      return new Response(JSON.stringify({ 
-        aggregatedResults,
-        failedSources 
-      }), {
+      return new Response(JSON.stringify({ aggregatedResults, failedSources }), {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Cache-Control': `private, max-age=${cacheTime}`,
@@ -115,19 +114,21 @@ export async function GET(request: Request) {
     }
   }
 
-  // 流式：保持原有流式行为（无法在响应开始后再按"是否为空"调整缓存头）
-
+  // -------------------------
+  // 流式：并发
+  // -------------------------
   (async () => {
     const aggregatedResults: any[] = [];
     const failedSources: { name: string; key: string; error: string }[] = [];
-    
-    for (const site of apiSites) {
+
+    const tasks = apiSites.map(async (site) => {
       try {
         const generator = searchFromApiStream(site, query);
         let hasResults = false;
+
         for await (const pageResults of generator) {
           let filteredResults = pageResults;
-          if(filteredResults.length != 0){
+          if (filteredResults.length !== 0) {
             hasResults = true;
           }
           if (!config.SiteConfig.DisableYellowFilter) {
@@ -136,20 +137,21 @@ export async function GET(request: Request) {
               return !yellowWords.some((word) => typeName.includes(word));
             });
           }
-          if(hasResults === true && filteredResults.length === 0){
+
+          if (hasResults && filteredResults.length === 0) {
             failedSources.push({ name: site.name, key: site.key, error: '结果被过滤' });
             await safeWrite({ failedSources });
-            break;
+            return;
           }
+
           aggregatedResults.push(...filteredResults);
-          if (!(await safeWrite({ pageResults: filteredResults }))) {
-            break;
+          if (!(await safeWrite({ site: site.key, pageResults: filteredResults }))) {
+            return;
           }
         }
-        // 如果没有结果，也记录为失败
+
         if (!hasResults) {
           failedSources.push({ name: site.name, key: site.key, error: '无搜索结果' });
-          // 发送失败的数据源信息
           await safeWrite({ failedSources });
         }
       } catch (err: any) {
@@ -157,16 +159,16 @@ export async function GET(request: Request) {
         failedSources.push({ name: site.name, key: site.key, error: err.message || '未知的错误' });
         await safeWrite({ failedSources });
       }
+    });
 
-      if (shouldStop) break;
-    }
-    
-    // 发送失败的数据源信息
+    // 等所有 site 跑完
+    await Promise.allSettled(tasks);
+
     if (failedSources.length > 0) {
       await safeWrite({ failedSources });
     }
-    
     await safeWrite({ aggregatedResults });
+
     try {
       await writer.close();
     } catch {

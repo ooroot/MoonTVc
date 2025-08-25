@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.0",
+    date: "2025-08-25",
+    added: [
+      // 无新增内容
+    ],
+    changed: [
+    "站点配置可直接修改",
+    "进一步优化搜索速度"
+    ],
+    fixed: [
+    "修复搜索结果只能打开同一个"
+    ]
+  },
+  {
     version: "2.3.6",
     date: "2025-08-24",
     added: [

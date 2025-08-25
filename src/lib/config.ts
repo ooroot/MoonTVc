@@ -388,24 +388,29 @@ export async function getConfig(): Promise<AdminConfig> {
       adminConfig.CustomCategories = [];
     }
 
-    // 合并一些环境变量配置
+    // 数据库优先，环境变量仅在缺省时回退
     adminConfig.SiteConfig.SiteName =
-      process.env.NEXT_PUBLIC_SITE_NAME || 'MoonTV';
+      adminConfig.SiteConfig.SiteName || process.env.NEXT_PUBLIC_SITE_NAME || 'MoonTV';
     adminConfig.SiteConfig.Announcement =
+      adminConfig.SiteConfig.Announcement ||
       process.env.ANNOUNCEMENT ||
       '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。';
     adminConfig.UserConfig.AllowRegister =
-      process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true';
+      typeof adminConfig.UserConfig.AllowRegister === 'boolean'
+        ? adminConfig.UserConfig.AllowRegister
+        : process.env.NEXT_PUBLIC_ENABLE_REGISTER === 'true';
     adminConfig.SiteConfig.DoubanProxyType =
-      process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'direct';
+      adminConfig.SiteConfig.DoubanProxyType || process.env.NEXT_PUBLIC_DOUBAN_PROXY_TYPE || 'direct';
     adminConfig.SiteConfig.DoubanProxy =
-      process.env.NEXT_PUBLIC_DOUBAN_PROXY || '';
+      adminConfig.SiteConfig.DoubanProxy || process.env.NEXT_PUBLIC_DOUBAN_PROXY || '';
     adminConfig.SiteConfig.DoubanImageProxyType =
-      process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE || 'direct';
+      adminConfig.SiteConfig.DoubanImageProxyType || process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY_TYPE || 'direct';
     adminConfig.SiteConfig.DoubanImageProxy =
-      process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY || '';
+      adminConfig.SiteConfig.DoubanImageProxy || process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY || '';
     adminConfig.SiteConfig.DisableYellowFilter =
-      process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true';
+      typeof adminConfig.SiteConfig.DisableYellowFilter === 'boolean'
+        ? adminConfig.SiteConfig.DisableYellowFilter
+        : process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true';
 
     try {
       fileConfig = JSON.parse(adminConfig.ConfigFile) as ConfigFileStruct;

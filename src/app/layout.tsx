@@ -17,7 +17,7 @@ const inter = Inter({ subsets: ['latin'] });
 // 动态生成 metadata，支持配置更新后的标题变化
 export async function generateMetadata(): Promise<Metadata> {
   let siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'MoonTV';
-  if (process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'upstash') {
+  if (process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'localstorage') {
     const config = await getConfig();
     siteName = config.SiteConfig.SiteName;
   }
@@ -52,7 +52,7 @@ export default async function RootLayout({
   let doubanImageProxy = process.env.NEXT_PUBLIC_DOUBAN_IMAGE_PROXY || '';
   let disableYellowFilter =
     process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true';
-  if (storageType !== 'upstash' && storageType !== 'localstorage') {
+  if (storageType !== 'localstorage') {
     const config = await getConfig();
     siteName = config.SiteConfig.SiteName;
     announcement = config.SiteConfig.Announcement;
