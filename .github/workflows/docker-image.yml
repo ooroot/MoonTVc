@@ -1,18 +1,14 @@
-# This workflow uses the third-party action Mattraks/delete-workflow-runs@main to clean up old workflow runs.
-# Source: https://github.com/Mattraks/delete-workflow-runs
-# Purpose: Automatically delete old workflow runs to save storage and keep the repository clean.
-
-name: Build and Push Docker image
+name: Build & Push Docker image
 
 on:
   push:
     branches:
-      -  main
+      - main
     paths-ignore:
       - '**.md'
   pull_request:
     branches:
-      -  main
+      - main
     paths-ignore:
       - '**.md'
   workflow_dispatch:
@@ -34,7 +30,7 @@ jobs:
           - platform: linux/amd64
             os: ubuntu-latest
           - platform: linux/arm64
-            os: ubuntu-latest
+            os: ubuntu-24.04-arm
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -66,7 +62,7 @@ jobs:
           images: ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv
           tags: |
             type=ref,event=pr
-            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push by digest
         id: build
@@ -76,13 +72,7 @@ jobs:
           file: ./Dockerfile
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          # 输出参数拆分，便于维护和理解
-          outputs: |
-            type=image
-            name=ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv
-            push-by-digest=true
-            name-canonical=true
-            push=${{ github.event_name != 'pull_request' }}
+          outputs: type=image,name=ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv,push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
 
       - name: Export digest
         run: |
@@ -134,19 +124,17 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=sha
-            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
-        env:
-          DOCKER_METADATA_OUTPUT_JSON: ${{ steps.meta.outputs.json }}
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv@sha256:%s ' *)
+
       - name: Inspect image
         run: |
-          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'); do
-            docker buildx imagetools inspect ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv:$tag
-          done
+          docker buildx imagetools inspect ghcr.io/${{ steps.lowercase.outputs.owner }}/moontv:${{ steps.meta.outputs.version }}
 
   cleanup:
     runs-on: ubuntu-latest
@@ -159,5 +147,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 7
+          retain_days: 0
           keep_minimum_runs: 2
