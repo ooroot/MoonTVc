@@ -341,6 +341,14 @@ export default function VideoCard({
           </div>
         )}
 
+        {/* 📅 年份显示（左上角） */}
+        {from === 'search' && actualYear && actualYear.toLowerCase() !== 'unknown' && (
+        <div
+          className="absolute top-2 left-2 bg-black/60 text-white text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded-full shadow-md"
+        >
+          {actualYear}
+        </div>
+        )}
 
         {/* 集数 */}
         {actualEpisodes && actualEpisodes > 1 && (

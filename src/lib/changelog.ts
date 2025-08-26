@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.7",
+    date: "2025-08-22",
+    added: [
+    "搜索结果添加筛选功能"
+    ],
+    changed: [
+      // 无变更内容
+    ],
+    fixed: [
+    "主页展示评分",
+    "搜索结果展示年份"
+    ]
+  },
+  {
     version: "2.4.0",
     date: "2025-08-25",
     added: [
